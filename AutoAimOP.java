@@ -1,40 +1,52 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-public class AutoAimOP extends OpMode {
+@TeleOp
+@Configurable
+public class PIDFlywheel extends OpMode {
 
-    DcMotorEx procurador;
-    DcMotorEx fly1;
-    DcMotorEx fly2;
+    public DcMotorEx fly1, fly2;
+
+    public double highVel = 1500;
+    public double lowVel = 900;
+
+    public double P = 0; // TUNAR
+    public double F = 0; // TUNAR
     GoalAimVelocity goalAimVelocity;
+
 
     @Override
     public void init() {
-        procurador = hardwareMap.get(DcMotorEx.class, "procurador");
         fly1 = hardwareMap.get(DcMotorEx.class, "lançador1");
         fly2 = hardwareMap.get(DcMotorEx.class, "lançador2");
-        goalAimVelocity = new GoalAimVelocity();
-
+        fly1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         fly1.setDirection(DcMotorSimple.Direction.FORWARD);
         fly2.setDirection(DcMotorSimple.Direction.REVERSE);
+        goalAimVelocity = new GoalAimVelocity();
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+        fly1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
     }
 
     @Override
     public void loop() {
-        procurador.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        procurador.setTargetPosition(
-                (int) Math.floor(EncoderAngle(goalAimVelocity.AutoAim()))
-        );
-        procurador.setPower(0.7);
+        fly1.setVelocity(goalAimVelocity.getTargetVel());
+        fly2.setVelocity(goalAimVelocity.getTargetVel());
 
-        telemetry.addData("VELOCITY fly1 : ", fly1.getVelocity());
-    }
+        double curVel = fly1.getVelocity();
+        double error = goalAimVelocity.getTargetVel() - curVel;
+        double tVel = goalAimVelocity.getTargetVel();
 
-    public double EncoderAngle(double angulo) {
-        return (1000.0 / 180.0) * angulo;
+        telemetry.addData("TARGET VEL: ", tVel);
+        telemetry.addData("CURRENT VEL: ",curVel);
+        telemetry.addData("ERROR", error);
+        telemetry.addData("DISTANCE", goalAimVelocity.dis);
     }
 }
