@@ -2,29 +2,24 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
+import com.pedropathing.math.MathFunctions;
+
 public class GoalAimVelocity {
-    private final double blueGoalPoseY = 144.0;
-    private final double blueGoalPoseX = 144.0;
+    private final double redGoalPoseY = 144.0;
+    private final double redGoalPoseX = 144.0;
 
-    double dis = Math.sqrt(
-            Math.pow(blueGoalPoseY - follower.getPose().getY(), 2)
-          + Math.pow(blueGoalPoseX - follower.getPose().getX(), 2)
-    );
+    double dis = Math.sqrt
+            (Math.pow(redGoalPoseY - follower.getPose().getY(), 2) + Math.pow(redGoalPoseX - follower.getPose().getX(), 2));
+    double deg = Math.atan2
+            ((redGoalPoseY - follower.getPose().getY()), (redGoalPoseX - follower.getPose().getX()));
 
-    double deg = Math.atan2(
-            (blueGoalPoseY - follower.getPose().getY()),
-            (blueGoalPoseX - follower.getPose().getX())
-    );
-
-    public double AutoAim() {
+    public double AutoAim(){
         return follower.getHeading() - deg;
     }
 
-    public double getTargetVel() {
-        if (dis > 134.0) {
-            return 1500.0;
-        } else {
-            return 900.0;
-        }
+    public double getTargetVel(){
+        return MathFunctions.clamp
+                (0.0246153 * Math.pow(dis, 2) + 1.69857 * dis + 747.19611, 0, 1500);
     }
 }
+
