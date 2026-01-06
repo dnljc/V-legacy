@@ -20,14 +20,14 @@ public class AutoAimOP extends OpMode {
         fly2 = hardwareMap.get(DcMotorEx.class, "lançador2");
         goalAimVelocity = new GoalAimVelocity();
 
+        procurador.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         fly1.setDirection(DcMotorSimple.Direction.FORWARD);
         fly2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
     public void loop() {
-        procurador.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        procurador.setTargetPosition ((int) Math.floor(EncoderAngle(goalAimVelocity.AutoAim())));
+        procurador.setTargetPosition ((int) Math.floor(EncoderAngle(goalAimVelocity.autoAim())));
         procurador.setPower(0.7);
 
         telemetry.addData("VELOCITY fly1 : ", fly1.getVelocity());
