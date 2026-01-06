@@ -1,0 +1,67 @@
+package org.firstinspires.ftc.teamcode.pedroPathing;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+@TeleOp
+public class AutoAimOP extends OpMode {
+
+    DcMotorEx procurador;
+    DcMotorEx fly1;
+    DcMotorEx fly2;
+
+    GoalAimVelocity goalAimVelocity;
+
+    // ====== GANHOS ======
+    double kP = 0.01;      // ganho proporcional (ajuste fino)
+    double maxPower = 0.6; // limite de potência
+    double deadZone = 1.0; // graus aceitáveis (zona morta)
+
+    @Override
+    public void init() {
+
+        procurador = hardwareMap.get(DcMotorEx.class, "procurador");
+        fly1 = hardwareMap.get(DcMotorEx.class, "lançador1");
+        fly2 = hardwareMap.get(DcMotorEx.class, "lançador2");
+
+        goalAimVelocity = new GoalAimVelocity();
+
+        procurador.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        fly1.setDirection(DcMotorSimple.Direction.FORWARD);
+        fly2.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    @Override
+    public void loop() {
+
+        // 🔁 Atualiza pose (OBRIGATÓRIO)
+        Tuning.follower.update();
+
+        // 🎯 Erro angular em GRAUS (já com angleWrap)
+        double errorDeg = goalAimVelocity.autoAim();
+
+        // 🧠 Controle proporcional
+        double power = kP * errorDeg;
+
+        // 🛑 Zona morta (evita tremedeira)
+        if (Math.abs(errorDeg) < deadZone) {
+            power = 0;
+        }
+
+        // 🔒 Limite de potência
+        power = Math.max(-maxPower, Math.min(maxPower, power));
+
+        // 🚀 Aplica no motor do procurador
+        procurador.setPower(power);
+
+        // 📊 Telemetria
+        telemetry.addData("Erro (deg)", errorDeg);
+        telemetry.addData("Power", power);
+        telemetry.addData("Flywheel Vel", fly1.getVelocity());
+        telemetry.update();
+    }
+}
