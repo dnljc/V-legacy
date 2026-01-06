@@ -8,8 +8,13 @@ public class GoalAimVelocity {
     private final double redGoalPoseY = 144.0;
     private final double redGoalPoseX = 144.0;
 
-    // Em 1.09, Pose continua existindo, mas é melhor calcular dinamicamente
-    private double getDistance() {
+  
+    public double getDistance() {
+
+        if (follower == null || follower.getPose() == null) {
+            return 0.0;
+        }
+
         return Math.sqrt(
                 Math.pow(redGoalPoseY - follower.getPose().getY(), 2) +
                         Math.pow(redGoalPoseX - follower.getPose().getX(), 2)
@@ -24,10 +29,24 @@ public class GoalAimVelocity {
     }
 
     public double autoAim() {
-        return follower.getHeading() - getAngleToGoal();
+
+        if (follower == null || follower.getPose() == null) {
+            return 0.0;
+        }
+
+        double goalAngleDeg = Math.toDegrees(getAngleToGoal());
+        double angleDeg = follower.getHeading() - goalAngleDeg;
+
+        return MathFunctions.angleWrap(angleDeg);
     }
 
+
     public double getTargetVel() {
+
+        if (follower == null || follower.getPose() == null) {
+            return 0.0;
+        }
+
         double dis = getDistance();
 
         return MathFunctions.clamp
