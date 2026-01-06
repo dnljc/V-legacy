@@ -1,0 +1,36 @@
+package org.firstinspires.ftc.teamcode.pedroPathing;
+
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+import com.pedropathing.util.MathFunctions;
+
+public class GoalAimVelocity {
+
+    private final double redGoalPoseY = 144.0;
+    private final double redGoalPoseX = 144.0;
+
+    // Em 1.09, Pose continua existindo, mas é melhor calcular dinamicamente
+    private double getDistance() {
+        return Math.sqrt(
+                Math.pow(redGoalPoseY - follower.getPose().getY(), 2) +
+                        Math.pow(redGoalPoseX - follower.getPose().getX(), 2)
+        );
+    }
+
+    private double getAngleToGoal() {
+        return Math.atan2(
+                redGoalPoseY - follower.getPose().getY(),
+                redGoalPoseX - follower.getPose().getX()
+        );
+    }
+
+    public double autoAim() {
+        return follower.getHeading() - getAngleToGoal();
+    }
+
+    public double getTargetVel() {
+        double dis = getDistance();
+
+        return MathFunctions.clamp
+                (0.0246153 * Math.pow(dis, 2) + 1.69857 * dis + 747.19611, 0, 1500);
+    }
+}
