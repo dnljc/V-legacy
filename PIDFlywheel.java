@@ -47,6 +47,6 @@ public class PIDFlywheel extends OpMode {
         telemetry.addData("TARGET VEL: ", tVel);
         telemetry.addData("CURRENT VEL: ",curVel);
         telemetry.addData("ERROR", error);
-        telemetry.addData("DISTANCE", goalAimVelocity.dis);
+        telemetry.addData("DISTANCE", goalAimVelocity.getDistance());
     }
 }
